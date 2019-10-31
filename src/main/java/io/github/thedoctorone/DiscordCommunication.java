@@ -20,12 +20,12 @@ public class DiscordCommunication extends ListenerAdapter implements Runnable {
     private Logger lg;
     private Server server;
     private String serverStartMessage;
-    DiscordCommunication(Server server, Logger lg, String channelId, String serverStartMessage) throws LoginException, InterruptedException {
+    DiscordCommunication(Server server, Logger lg, String TOKEN, String channelId, String serverStartMessage) throws LoginException, InterruptedException {
         this.serverStartMessage = serverStartMessage;
         this.server = server;
         this.lg = lg;
         this.channelId = channelId;
-        MCD = new JDABuilder(AccountType.BOT).setToken("NjM5MzQ0NTIyNDI1NTMyNDM3.Xbp6GQ.MlLb3w7QVMkwsQIte2h4AVc-bQc").setStatus(OnlineStatus.DO_NOT_DISTURB).build();
+        MCD = new JDABuilder(AccountType.BOT).setToken(TOKEN).setStatus(OnlineStatus.DO_NOT_DISTURB).build();
         MCD.addEventListener(this);
         MCD.getPresence().setActivity(Activity.of(ActivityType.WATCHING, "Minecraft Chat"));
     }
@@ -44,7 +44,8 @@ public class DiscordCommunication extends ListenerAdapter implements Runnable {
     public void run() {
         while (true) {
             try {
-                MCD.getTextChannelById(channelId).sendMessage("```css\n" + serverStartMessage + "```").queue();
+                MCD.getTextChannelById(channelId).sendMessage(serverStartMessage).queue();
+                //IF YOU REALLY MODIFIED THE PROJECT YOU CAN DELETE THIS MESSAGE. OTHERWISE, YOU ARE NOT ALLOWED TO!
                 MCD.getTextChannelById(channelId).sendMessage("```css\n'Minecraft Connects Discord'\n Made by Mahmut H. Kocas \n https://www.thedoctorone.github.io```").queue();
                 break;
             } catch (NullPointerException | IllegalMonitorStateException e) {
