@@ -12,12 +12,9 @@ import org.bukkit.plugin.java.JavaPlugin;
 
 import java.io.*;
 
-/**
- * Hello world!
- *
- */
 public class Main extends JavaPlugin implements Listener {
     private DiscordCommunication dc;
+    private CommandReload commandReload;
     private String VERSION = "0.3";
     private String playerJoin = "&p just joined to server!";
     private String playerLeft = "&p just leaved the server!";
@@ -36,12 +33,13 @@ public class Main extends JavaPlugin implements Listener {
         getLogger().info("Hello, Minecraft Connects to Discord is here! by Mahmut H. Kocas");
         try {
             ConfigThingies();
+            getCommand("discord").setExecutor(commandReload = new CommandReload(this, dc = new DiscordCommunication())); //Adding discord command
         } catch (IOException e) {
             getLogger().warning("CAN'T INTERACT WITH DISCORD'S CONFIG FILE!");
         }
         if(!TOKEN.equals("ENTER YOUR TOKEN HERE"))
             try {
-                dc = new DiscordCommunication(getServer(), getLogger(), TOKEN, channelID, ServerStart);
+                dc.executeBot(getServer(), getLogger(), TOKEN, channelID, ServerStart);
                 getServer().getPluginManager().registerEvents(this, this);
                 new Thread(dc).run();
             } catch (LoginException e) {

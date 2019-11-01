@@ -21,7 +21,12 @@ public class DiscordCommunication extends ListenerAdapter implements Runnable {
     private Server server;
     private String serverStartMessage;
     private String TOKEN;
-    DiscordCommunication(Server server, Logger lg, String TOKEN, String channelId, String serverStartMessage) throws LoginException {
+
+    DiscordCommunication () {
+
+    }
+
+    public void executeBot (Server server, Logger lg, String TOKEN, String channelId, String serverStartMessage) throws LoginException {
         this.TOKEN = TOKEN;
         this.serverStartMessage = serverStartMessage;
         this.server = server;
