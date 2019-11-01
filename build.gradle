@@ -8,14 +8,13 @@ version '0.1'
 
 sourceCompatibility = 1.8
 
-mainClassName = 'io.github.thedoctorone.App'
+mainClassName = 'io.github.thedoctorone.Main'
 
 shadowJar {
     classifier = null // do not append "-all"
 }
 
 repositories {
-    mavenCentral()
     jcenter()
     maven { url = 'https://oss.sonatype.org/content/repositories/snapshots' }
     mavenLocal()
@@ -24,12 +23,14 @@ repositories {
 dependencies {
     testCompile "junit:junit:4.11"
     compileOnly 'org.spigotmc:spigot-api:1.12.2-R0.1-SNAPSHOT'
-    compile "net.dv8tion:JDA:4.0.0_55"
+    compile ("net.dv8tion:JDA:4.0.0_55") {
+        exclude module: "opus-java"
+    }
 }
-
+/*
 // Publishing a Shadow JAR with the Maven-Publish Plugin
 apply plugin: 'java'
 apply plugin: 'maven-publish'
-apply plugin: 'com.github.johnrengelman.shadow'
+apply plugin: 'com.github.johnrengelman.shadow'*/
 
 compileJava.options.encoding = 'UTF-8'

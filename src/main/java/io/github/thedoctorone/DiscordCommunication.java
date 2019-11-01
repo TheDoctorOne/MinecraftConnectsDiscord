@@ -20,11 +20,23 @@ public class DiscordCommunication extends ListenerAdapter implements Runnable {
     private Logger lg;
     private Server server;
     private String serverStartMessage;
-    DiscordCommunication(Server server, Logger lg, String TOKEN, String channelId, String serverStartMessage) throws LoginException, InterruptedException {
+    private String TOKEN;
+    DiscordCommunication(Server server, Logger lg, String TOKEN, String channelId, String serverStartMessage) throws LoginException {
+        this.TOKEN = TOKEN;
         this.serverStartMessage = serverStartMessage;
         this.server = server;
         this.lg = lg;
         this.channelId = channelId;
+        runBot(TOKEN);
+    }
+
+    public void reloadBot(String TOKEN) throws LoginException {
+        MCD.shutdownNow();
+        this.TOKEN = TOKEN;
+        runBot(TOKEN);
+    }
+
+    public void runBot(String TOKEN) throws LoginException {
         MCD = new JDABuilder(AccountType.BOT).setToken(TOKEN).setStatus(OnlineStatus.DO_NOT_DISTURB).build();
         MCD.addEventListener(this);
         MCD.getPresence().setActivity(Activity.of(ActivityType.WATCHING, "Minecraft Chat"));
@@ -54,4 +66,7 @@ public class DiscordCommunication extends ListenerAdapter implements Runnable {
         }
     }
 
+    public void setChannelId(String channelId) {
+        this.channelId = channelId;
+    }
 }

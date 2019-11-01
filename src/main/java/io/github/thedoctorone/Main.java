@@ -16,7 +16,7 @@ import java.io.*;
  * Hello world!
  *
  */
-public class App extends JavaPlugin implements Listener {
+public class Main extends JavaPlugin implements Listener {
     private DiscordCommunication dc;
     private String VERSION = "0.2";
     private String playerJoin = "&p just joined to server!";
@@ -43,15 +43,15 @@ public class App extends JavaPlugin implements Listener {
                 dc = new DiscordCommunication(getServer(), getLogger(), TOKEN, channelID, ServerStart);
                 getServer().getPluginManager().registerEvents(this, this);
                 new Thread(dc).run();
-            } catch (LoginException | InterruptedException e) {
-                getLogger().warning("Couldn't join to discord!");
+            } catch (LoginException e) {
+                getLogger().warning("Couldn't join to discord! Check your token or Internet Connection!");
             }
     }
 
     @Override
     public void onDisable() {
         dc.sendMessageToDiscord(ServerStop);
-        getLogger().info("See you again, SpigotMC!");
+        getLogger().info("MCD OUT!");
     }
 
     @EventHandler
@@ -85,7 +85,7 @@ public class App extends JavaPlugin implements Listener {
         }
     }
 
-    private void ConfigThingies () throws IOException {
+    public void ConfigThingies () throws IOException {
         File folder = new File("discord");
         if(!folder.exists())
             folder.mkdir();
@@ -99,6 +99,7 @@ public class App extends JavaPlugin implements Listener {
         FileReader fr = new FileReader(config); //Reading the config
         BufferedReader br = new BufferedReader(fr);
         String temp = "";
+        boolean CFG_VER_SAME = true;
         while((temp = br.readLine()) != null) {
             if(temp.startsWith("Discord Bot Token=")) {
                 TOKEN = temp.replaceFirst("Discord Bot Token="," ").trim();
@@ -120,11 +121,14 @@ public class App extends JavaPlugin implements Listener {
             }
             if(temp.startsWith("CFG-VERSION=")) {
                 if(!temp.replaceFirst("CFG-VERSION="," ").trim().equals(VERSION)) {
-                    createConfigFile(config);
-                    TOKEN = null;
+                   CFG_VER_SAME = false;
                 }
             }
         }
+        if(!CFG_VER_SAME && TOKEN != null && channelID != null)
+            createConfigFile(config, TOKEN, channelID);
+        if(!CFG_VER_SAME)
+            createConfigFile(config);
         br.close();
         fr.close();
     }
@@ -143,5 +147,29 @@ public class App extends JavaPlugin implements Listener {
         fw.write(configFile);
         bw.close();
         fw.close();
+    }
+
+    private void createConfigFile (File config, String TOKEN, String channelID) throws IOException {
+        FileWriter fw = new FileWriter(config); //Creating the config
+        BufferedWriter bw = new BufferedWriter(fw);
+        String configFile = "" +
+                "Discord Bot Token= " + TOKEN + "\n" +
+                "Discord Channel ID= " + channelID + "\n" +
+                "Player Join Message= &p just joined to server!\n" +
+                "Player Disconnect Message= &p just leaved the server!\n" +
+                "Server Start Message= Server Started!\n" +
+                "Server Stop Message= Server Stopped!\n" +
+                "CFG-VERSION= 0.2";
+        fw.write(configFile);
+        bw.close();
+        fw.close();
+    }
+
+    public String getTOKEN() {
+        return TOKEN;
+    }
+
+    public String getChannelID() {
+        return channelID;
     }
 }
