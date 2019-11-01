@@ -46,7 +46,7 @@ public class DiscordCommunication extends ListenerAdapter implements Runnable {
             try {
                 MCD.getTextChannelById(channelId).sendMessage(serverStartMessage).queue();
                 //IF YOU REALLY MODIFIED THE PROJECT YOU CAN DELETE THIS MESSAGE. OTHERWISE, YOU ARE NOT ALLOWED TO!
-                MCD.getTextChannelById(channelId).sendMessage("```css\n'Minecraft Connects Discord'\n Made by Mahmut H. Kocas \n https://www.thedoctorone.github.io```").queue();
+                //MCD.getTextChannelById(channelId).sendMessage("```css\n'Minecraft Connects Discord'\n Made by Mahmut H. Kocas \n https://www.thedoctorone.github.io```").queue();
                 break;
             } catch (NullPointerException | IllegalMonitorStateException e) {
                 continue;
