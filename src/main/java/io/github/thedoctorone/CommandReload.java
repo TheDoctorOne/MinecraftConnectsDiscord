@@ -32,20 +32,23 @@ public class CommandReload implements CommandExecutor {
         * Args[0] -> Fast Reload - Only Reloads the messages
         * Args[0] -> Full Reload - Reloads whole bot
         * */
-
         try {
             if(args[0].equals(fast)) { //Fast
                 fastReload(sender);
+                return true;
             } else if(args[0].equals(full)) { //Full
                 fullReload(sender);
+                return true;
             }   else if(args[0] == "") { //Empty - Sends help
                 sendHelp(sender);
+                return true;
             }
+
         } catch (IOException | LoginException e) {
             main.getLogger().warning("ERROR - CONFIG READ - IO EXCEPTION");
             sender.sendMessage("ERROR - CONFIG READ - IO EXCEPTION");
+            return false;
         }
-
         return false;
     }
 
@@ -87,6 +90,9 @@ public class CommandReload implements CommandExecutor {
             if (player.isOp()) { //Player perm control
                 sender.sendMessage(helpMessage);
             } else { //Sends discord invite link
+                if(!main.getDiscordInviteLink().equals("INVITE LINK OF YOUR DISCORD")) {
+                    sender.sendMessage("Discord : " + main.getDiscordInviteLink());
+                }
             }
         } else if (sender instanceof ConsoleCommandSender) { //Console
             sender.sendMessage(helpMessage);

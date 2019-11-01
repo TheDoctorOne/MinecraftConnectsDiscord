@@ -18,13 +18,14 @@ import java.io.*;
  */
 public class Main extends JavaPlugin implements Listener {
     private DiscordCommunication dc;
-    private String VERSION = "0.2";
+    private String VERSION = "0.3";
     private String playerJoin = "&p just joined to server!";
     private String playerLeft = "&p just leaved the server!";
     private String ServerStart = "Server Started!";
     private String ServerStop = "Server Stopped!";
-    private String channelID;
-    private String TOKEN;
+    private String channelID = "ENTER YOUR CHANNEL ID HERE";
+    private String discordInviteLink = "INVITE LINK OF YOUR DISCORD";
+    private String TOKEN = "ENTER YOUR TOKEN HERE";
     String boldStart = "**";
     String squareParOpen = "[";
     String squareParClose = "]";
@@ -38,7 +39,7 @@ public class Main extends JavaPlugin implements Listener {
         } catch (IOException e) {
             getLogger().warning("CAN'T INTERACT WITH DISCORD'S CONFIG FILE!");
         }
-        if(TOKEN != null)
+        if(!TOKEN.equals("ENTER YOUR TOKEN HERE"))
             try {
                 dc = new DiscordCommunication(getServer(), getLogger(), TOKEN, channelID, ServerStart);
                 getServer().getPluginManager().registerEvents(this, this);
@@ -99,7 +100,7 @@ public class Main extends JavaPlugin implements Listener {
         FileReader fr = new FileReader(config); //Reading the config
         BufferedReader br = new BufferedReader(fr);
         String temp = "";
-        boolean CFG_VER_SAME = true;
+        boolean CFG_VER_EQ = true;
         while((temp = br.readLine()) != null) {
             if(temp.startsWith("Discord Bot Token=")) {
                 TOKEN = temp.replaceFirst("Discord Bot Token="," ").trim();
@@ -119,16 +120,20 @@ public class Main extends JavaPlugin implements Listener {
             if(temp.startsWith("Server Stop Message=")) {
                 ServerStop = temp.replaceFirst("Server Stop Message="," ").trim();
             }
+            if(temp.startsWith("Discord Invite Link=")) {
+                if(!temp.replaceFirst("Discord Invite Link="," ").trim().equals(VERSION)) {
+                    discordInviteLink = temp.replaceFirst("Discord Invite Link="," ").trim();;
+                }
+            }
             if(temp.startsWith("CFG-VERSION=")) {
                 if(!temp.replaceFirst("CFG-VERSION="," ").trim().equals(VERSION)) {
-                   CFG_VER_SAME = false;
+                    CFG_VER_EQ = false;
                 }
             }
         }
-        if(!CFG_VER_SAME && TOKEN != null && channelID != null)
-            createConfigFile(config, TOKEN, channelID);
-        if(!CFG_VER_SAME)
+        if (!CFG_VER_EQ) {
             createConfigFile(config);
+        }
         br.close();
         fr.close();
     }
@@ -137,29 +142,14 @@ public class Main extends JavaPlugin implements Listener {
         FileWriter fw = new FileWriter(config); //Creating the config
         BufferedWriter bw = new BufferedWriter(fw);
         String configFile = "" +
-                "Discord Bot Token= ENTER YOUR TOKEN HERE\n" +
-                "Discord Channel ID= ENTER YOUR CHANNEL ID HERE\n" +
-                "Player Join Message= &p just joined to server!\n" +
-                "Player Disconnect Message= &p just leaved the server!\n" +
-                "Server Start Message= Server Started!\n" +
-                "Server Stop Message= Server Stopped!\n" +
-                "CFG-VERSION= 0.2";
-        fw.write(configFile);
-        bw.close();
-        fw.close();
-    }
-
-    private void createConfigFile (File config, String TOKEN, String channelID) throws IOException {
-        FileWriter fw = new FileWriter(config); //Creating the config
-        BufferedWriter bw = new BufferedWriter(fw);
-        String configFile = "" +
                 "Discord Bot Token= " + TOKEN + "\n" +
                 "Discord Channel ID= " + channelID + "\n" +
-                "Player Join Message= &p just joined to server!\n" +
-                "Player Disconnect Message= &p just leaved the server!\n" +
-                "Server Start Message= Server Started!\n" +
-                "Server Stop Message= Server Stopped!\n" +
-                "CFG-VERSION= 0.2";
+                "Discord Invite Link= " + discordInviteLink +"\n" +
+                "Player Join Message= " + playerJoin +"\n" +
+                "Player Disconnect Message= "+ playerLeft + "\n" +
+                "Server Start Message= "+ ServerStart + "\n" +
+                "Server Stop Message= " + ServerStop + "\n" +
+                "CFG-VERSION= " + VERSION;
         fw.write(configFile);
         bw.close();
         fw.close();
@@ -171,5 +161,9 @@ public class Main extends JavaPlugin implements Listener {
 
     public String getChannelID() {
         return channelID;
+    }
+
+    public String getDiscordInviteLink() {
+        return discordInviteLink;
     }
 }
