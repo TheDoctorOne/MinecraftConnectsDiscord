@@ -1,4 +1,4 @@
-main: io.github.thedoctorone.App
+main: io.github.thedoctorone.Main
 name: DiscordConnectsMinecraft
 version: 0.1
 commands:

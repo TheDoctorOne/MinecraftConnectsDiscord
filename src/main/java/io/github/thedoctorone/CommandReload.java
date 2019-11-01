@@ -14,11 +14,12 @@ public class CommandReload implements CommandExecutor {
     private Main main;
     private String fast = "fast";
     private String full = "full";
-    private String helpMessage = "Minecraft Connects Discord by Mahmut H. Kocas\n" +
+    private String helpMessage = "\n*****************************************************************\n" +
+            "Minecraft Connects Discord by Mahmut H. Kocas\n" +
             "/discord : Commands\n" +
             "/discord fast : Changes everything according to config file except Discord Bot Token\n" +
             "/discord full : Changes everything according to config file\n" +
-            "";
+            "*****************************************************************";
 
     CommandReload (Main main, DiscordCommunication dc) {
         this.dc = dc;
@@ -28,22 +29,25 @@ public class CommandReload implements CommandExecutor {
     @Override
     public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
         /*
-        * Args = "" -> Help
+        * Args[0] = null -> Help
         * Args[0] -> Fast Reload - Only Reloads the messages
         * Args[0] -> Full Reload - Reloads whole bot
         * */
         try {
-            if(args[0].equals(fast)) { //Fast
-                fastReload(sender);
-                return true;
-            } else if(args[0].equals(full)) { //Full
-                fullReload(sender);
-                return true;
-            }   else if(args[0] == "") { //Empty - Sends help
+             if(args.length == 0) { //Empty - Sends help
                 sendHelp(sender);
                 return true;
+            } else if(args[0].equals(full)) { //Full
+                sender.sendMessage("Full Reload Starting...");
+                fullReload(sender);
+                sender.sendMessage("Full Reload Successful!");
+                return true;
+            } else if(args[0].equals(fast)) { //Fast
+                 sender.sendMessage("Fast Reload Starting...");
+                 fastReload(sender);
+                 sender.sendMessage("Fast Reload Successful!");
+                return true;
             }
-
         } catch (IOException | LoginException e) {
             main.getLogger().warning("ERROR - CONFIG READ - IO EXCEPTION");
             sender.sendMessage("ERROR - CONFIG READ - IO EXCEPTION");
