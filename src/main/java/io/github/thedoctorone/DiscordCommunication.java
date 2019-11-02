@@ -8,13 +8,16 @@ import net.dv8tion.jda.api.JDABuilder;
 import net.dv8tion.jda.api.OnlineStatus;
 import net.dv8tion.jda.api.entities.Activity;
 import net.dv8tion.jda.api.entities.Activity.ActivityType;
+import net.dv8tion.jda.api.events.ReadyEvent;
+import net.dv8tion.jda.api.events.ReconnectedEvent;
+import net.dv8tion.jda.api.events.StatusChangeEvent;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
 import org.bukkit.Server;
 
 import java.util.logging.Logger;
 
-public class DiscordCommunication extends ListenerAdapter implements Runnable {
+public class DiscordCommunication extends ListenerAdapter {
     static JDA MCD;
     private String channelId;
     private Logger lg;
@@ -52,23 +55,17 @@ public class DiscordCommunication extends ListenerAdapter implements Runnable {
         if(event.getChannel().getId().equals(channelId) && !event.getAuthor().isBot())
             server.broadcastMessage("[Discord] " + event.getAuthor().getName() + " : " + event.getMessage().getContentRaw());
     }
+    private boolean first = true;
+    @Override
+    public void onReady(ReadyEvent event) {
+        if(first) {
+            MCD.getTextChannelById(channelId).sendMessage(serverStartMessage).queue();
+            first = false;
+        }
+    }
 
     public void sendMessageToDiscord(String message) {
         MCD.getTextChannelById(channelId).sendMessage(message).queue();
-    }
-
-    @Override
-    public void run() {
-        while (true) {
-            try {
-                MCD.getTextChannelById(channelId).sendMessage(serverStartMessage).queue();
-                //IF YOU REALLY MODIFIED THE PROJECT YOU CAN DELETE THIS MESSAGE. OTHERWISE, YOU ARE NOT ALLOWED TO!
-                //MCD.getTextChannelById(channelId).sendMessage("```css\n'Minecraft Connects Discord'\n Made by Mahmut H. Kocas \n https://www.thedoctorone.github.io```").queue();
-                break;
-            } catch (NullPointerException | IllegalMonitorStateException e) {
-                continue;
-            }
-        }
     }
 
     public void setChannelId(String channelId) {

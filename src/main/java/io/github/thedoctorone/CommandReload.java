@@ -14,12 +14,12 @@ public class CommandReload implements CommandExecutor {
     private Main main;
     private String fast = "fast";
     private String full = "full";
-    private String helpMessage = "\n*****************************************************************\n" +
+    private String helpMessage = "\n**************************************************************\n" +
             "Minecraft Connects Discord by Mahmut H. Kocas\n" +
             "/discord : Commands\n" +
             "/discord fast : Changes everything according to config file except Discord Bot Token\n" +
             "/discord full : Changes everything according to config file\n" +
-            "*****************************************************************";
+            "**************************************************************";
 
     CommandReload (Main main, DiscordCommunication dc) {
         this.dc = dc;

@@ -41,7 +41,6 @@ public class Main extends JavaPlugin implements Listener {
             try {
                 dc.executeBot(getServer(), getLogger(), TOKEN, channelID, ServerStart);
                 getServer().getPluginManager().registerEvents(this, this);
-                new Thread(dc).run();
             } catch (LoginException e) {
                 getLogger().warning("Couldn't join to discord! Check your token or Internet Connection!");
             }
