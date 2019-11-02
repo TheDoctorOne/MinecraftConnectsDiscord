@@ -38,16 +38,14 @@ public class CommandReload implements CommandExecutor {
                 sendHelp(sender);
                 return true;
             } else if(args[0].equals(full)) { //Full
-                sender.sendMessage("Full Reload Starting...");
                 fullReload(sender);
-                sender.sendMessage("Full Reload Successful!");
                 return true;
             } else if(args[0].equals(fast)) { //Fast
-                 sender.sendMessage("Fast Reload Starting...");
                  fastReload(sender);
-                 sender.sendMessage("Fast Reload Successful!");
                 return true;
-            }
+            } else {
+                 sender.sendMessage("Wrong usage.");
+             }
         } catch (IOException | LoginException e) {
             main.getLogger().warning("ERROR - CONFIG READ - IO EXCEPTION");
             sender.sendMessage("ERROR - CONFIG READ - IO EXCEPTION");
@@ -60,13 +58,19 @@ public class CommandReload implements CommandExecutor {
         if(sender instanceof Player) { //Player
             Player player = (Player) sender;
             if(player.isOp()) { //Player perm control
+                sender.sendMessage("Fast Reload Starting...");
                 main.ConfigThingies();
                 dc.setChannelId(main.getChannelID());
+                sender.sendMessage("Fast Reload Successful!");
+            } else {
+                sender.sendMessage("Wrong usage.\n/discord");
             }
         } else if (sender instanceof ConsoleCommandSender) { //Console
             try {
+                sender.sendMessage("Fast Reload Starting...");
                 main.ConfigThingies();
                 dc.setChannelId(main.getChannelID());
+                sender.sendMessage("Fast Reload Successful!");
             } catch (IOException e) {
                 main.getLogger().warning("ERROR - CONFIG READ - IO EXCEPTION");
             }
@@ -77,14 +81,20 @@ public class CommandReload implements CommandExecutor {
         if(sender instanceof Player) { //Player
             Player player = (Player) sender;
             if(player.isOp()) { //Player perm control
+                sender.sendMessage("Full Reload Starting...");
                 main.ConfigThingies();
                 dc.reloadBot(main.getTOKEN());
                 dc.setChannelId(main.getChannelID());
+                sender.sendMessage("Full Reload Successful!");
+            } else {
+                sender.sendMessage("Wrong usage.\n/discord");
             }
         } else if (sender instanceof ConsoleCommandSender) { //Console
+            sender.sendMessage("Full Reload Starting...");
             main.ConfigThingies();
             dc.reloadBot(main.getTOKEN());
             dc.setChannelId(main.getChannelID());
+            sender.sendMessage("Full Reload Successful!");
         }
     }
 
