@@ -8,33 +8,45 @@ import net.dv8tion.jda.api.JDABuilder;
 import net.dv8tion.jda.api.OnlineStatus;
 import net.dv8tion.jda.api.entities.Activity;
 import net.dv8tion.jda.api.entities.Activity.ActivityType;
+import net.dv8tion.jda.api.entities.Role;
 import net.dv8tion.jda.api.events.ReadyEvent;
-import net.dv8tion.jda.api.events.ReconnectedEvent;
-import net.dv8tion.jda.api.events.StatusChangeEvent;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
 import org.bukkit.Server;
+import org.bukkit.command.CommandException;
+import org.bukkit.command.RemoteConsoleCommandSender;
 
+import java.util.logging.Handler;
+import java.util.logging.LogRecord;
 import java.util.logging.Logger;
 
 public class DiscordCommunication extends ListenerAdapter {
     static JDA MCD;
+    private Main main;
+    private DiscordCommandSender dcs;
+    private RemoteConsoleCommandSender dcd;
+    private boolean firstConnection = true;
+    private boolean sendByDiscordFullReload = false;
+
     private String channelId;
     private Logger lg;
     private Server server;
     private String serverStartMessage;
     private String TOKEN;
+    private String permId;
 
-    DiscordCommunication () {
-
+    DiscordCommunication (Main main) {
+        this.main = main;
+        dcs = new DiscordCommandSender(this, this.main);
     }
 
-    public void executeBot (Server server, Logger lg, String TOKEN, String channelId, String serverStartMessage) throws LoginException {
+    public void executeBot (Server server, Logger lg, String TOKEN, String channelId, String permId, String serverStartMessage) throws LoginException {
         this.TOKEN = TOKEN;
         this.serverStartMessage = serverStartMessage;
         this.server = server;
         this.lg = lg;
         this.channelId = channelId;
+        this.permId = permId;
         runBot(TOKEN);
     }
 
@@ -51,24 +63,63 @@ public class DiscordCommunication extends ListenerAdapter {
     }
 
     @Override
-    public void onMessageReceived(MessageReceivedEvent event) {
-        if(event.getChannel().getId().equals(channelId) && !event.getAuthor().isBot())
-            server.broadcastMessage("[Discord] " + event.getAuthor().getName() + " : " + event.getMessage().getContentRaw());
+    public void onMessageReceived(MessageReceivedEvent event) { //When message comes from discord
+        try {
+            if(!permId.equals("ENTER THE ADMIN DISCORD ROLE") && event.getChannel().getId().equals(channelId) && event.getMessage().getContentRaw().trim().startsWith("!exec ") && event.getAuthor().getJDA().getRoleById(permId) != null) {
+                    if(event.getMessage().getContentRaw().contains("discord full"))
+                        sendByDiscordFullReload = true;
+                    else if(event.getMessage().getContentRaw().contains("discord") && !event.getMessage().getContentRaw().contains("discord fast")) {
+                        lg.info("true");
+                        sendMessageToDiscord("```css\n" +
+                                "# [Minecraft Connects Discord by Mahmut H. Kocas]\n" +
+                                "# [Youtube](https://www.youtube.com/mahmutkocas)\n" +
+                                "/discord : Commands\n" +
+                                "/discord fast : Changes everything according to config file except Discord Bot Token\n" +
+                                "/discord full : Changes everything according to config file```");
+                        return;
+                    }
+                    server.dispatchCommand(dcs,event.getMessage().getContentRaw().replace("!exec "," ").trim());
+            } else if(event.getChannel().getId().equals(channelId) && !event.getAuthor().isBot()) {
+                server.broadcastMessage("[Discord] " + event.getAuthor().getName() + " : " + event.getMessage().getContentRaw()); //Mirroring Discord Chat to In-Game Chat
+            }
+        } catch (CommandException ex) {
+            server.dispatchCommand(dcd, event.getMessage().getContentRaw().replace("!exec "," ").trim());
+            sendMessageToDiscord("Command run, but output is out of reach.");
+        } catch (NumberFormatException ex) {
+            lg.warning("PERM ID IS NOT RIGHT!");
+        }
     }
-    private boolean first = true;
+
     @Override
-    public void onReady(ReadyEvent event) {
-        if(first) {
+    public void onReady(ReadyEvent event) { //First Connection
+        if(firstConnection) {
             MCD.getTextChannelById(channelId).sendMessage(serverStartMessage).queue();
-            first = false;
+            firstConnection = false;
+            dcd = new DiscordConsoleDummy(this, this.main);
+        } else if (sendByDiscordFullReload) {
+            sendByDiscordFullReload = false;
+            sendMessageToDiscord("Full Reload Successful!");
         }
     }
 
     public void sendMessageToDiscord(String message) {
-        MCD.getTextChannelById(channelId).sendMessage(message).queue();
+        if(!message.isEmpty())
+            MCD.getTextChannelById(channelId).sendMessage(message).queue();
+    }
+
+    public void returnLogFromConsole(String message) {
+        String[] MineCraftLanguageFilter = {"§e", "§f", "§7", "§6"}; //Weird color thingies & next-back selections
+        for(String f : MineCraftLanguageFilter)
+            message = message.replaceAll(f, "");
+        if(!message.isEmpty())
+            MCD.getTextChannelById(channelId).sendMessage(message).queue();
     }
 
     public void setChannelId(String channelId) {
         this.channelId = channelId;
+    }
+
+    public void setPermId(String permId) {
+        this.permId = permId;
     }
 }

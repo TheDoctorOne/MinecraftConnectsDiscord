@@ -16,6 +16,7 @@ public class CommandReload implements CommandExecutor {
     private String full = "full";
     private String helpMessage = "\n**************************************************************\n" +
             "Minecraft Connects Discord by Mahmut H. Kocas\n" +
+            "https://www.youtube.com/mahmutkocas\n" +
             "/discord : Commands\n" +
             "/discord fast : Changes everything according to config file except Discord Bot Token\n" +
             "/discord full : Changes everything according to config file\n" +
@@ -61,6 +62,7 @@ public class CommandReload implements CommandExecutor {
                 sender.sendMessage("Fast Reload Starting...");
                 main.ConfigThingies();
                 dc.setChannelId(main.getChannelID());
+                dc.setPermId(main.getDiscordPerm());
                 sender.sendMessage("Fast Reload Successful!");
             } else {
                 sender.sendMessage("Wrong usage.\n/discord");
@@ -70,6 +72,7 @@ public class CommandReload implements CommandExecutor {
                 sender.sendMessage("Fast Reload Starting...");
                 main.ConfigThingies();
                 dc.setChannelId(main.getChannelID());
+                dc.setPermId(main.getDiscordPerm());
                 sender.sendMessage("Fast Reload Successful!");
             } catch (IOException e) {
                 main.getLogger().warning("ERROR - CONFIG READ - IO EXCEPTION");
@@ -85,6 +88,7 @@ public class CommandReload implements CommandExecutor {
                 main.ConfigThingies();
                 dc.reloadBot(main.getTOKEN());
                 dc.setChannelId(main.getChannelID());
+                dc.setPermId(main.getDiscordPerm());
                 sender.sendMessage("Full Reload Successful!");
             } else {
                 sender.sendMessage("Wrong usage.\n/discord");
@@ -94,6 +98,7 @@ public class CommandReload implements CommandExecutor {
             main.ConfigThingies();
             dc.reloadBot(main.getTOKEN());
             dc.setChannelId(main.getChannelID());
+            dc.setPermId(main.getDiscordPerm());
             sender.sendMessage("Full Reload Successful!");
         }
     }
@@ -102,7 +107,7 @@ public class CommandReload implements CommandExecutor {
         if (sender instanceof Player) { //Player
             Player player = (Player) sender;
             if (player.isOp()) { //Player perm control
-                sender.sendMessage(helpMessage);
+                sender.sendMessage(helpMessage + "\nINVITE LINK : " + main.getDiscordInviteLink());
             } else { //Sends discord invite link
                 if(!main.getDiscordInviteLink().equals("INVITE LINK OF YOUR DISCORD")) {
                     sender.sendMessage("Discord : " + main.getDiscordInviteLink());
