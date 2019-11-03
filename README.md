@@ -18,6 +18,22 @@ Commands are (only for OPs):
 
 If default player tries "/discord", he will receive the discord invitation link which is configurable at config file!
 Config file located at "/discord/config.ini", it generates itself at first run.
+
+This plugin also allows you to execute commands via Discord chat.
+Only Authorized People can execute commands. To be able execute command you have to create a Discord Role, and copy its ID then paste it to relative place in the config file. And assign the role to yourself.
+
+How can I execute commands?
+
+Go to the Discord Text Channel which is watching by your bot. Type "!exec ". For vanilla commands, commands will execute but you can't see the output. You have to check console to see if it succeed or not.
+
+In Ex. of usage
+
+*    !exec kill MahmudKocas ---> You can't see if this succeed or not.
+*    !exec help --> Output will be shown.
+*    !exec help 2
+*    !exec discord ---> Output will be shown.
+*    !exec discord full
+
 To be able to use this in your Spigot Server,
 
 * You have to create a Discord Bot via https://discordapp.com/developers/ (its free)
