@@ -103,12 +103,15 @@ public class DiscordCommunication extends ListenerAdapter {
     }
 
     public void sendMessageToDiscord(String message) {
+        String[] MineCraftLanguageFilter = {"§a","§b","§c","§d","§e", "§f", "§k","§l", "§m","§n", "§o","§r", "§0","§1", "§2", "§3", "§4", "§5", "§6", "§7", "§8", "§9"}; //Weird color thingies & next-back selections
+        for(String f : MineCraftLanguageFilter)
+            message = message.replaceAll(f, "");
         if(!message.isEmpty())
             MCD.getTextChannelById(channelId).sendMessage(message).queue();
     }
 
     public void returnLogFromConsole(String message) {
-        String[] MineCraftLanguageFilter = {"§e", "§f", "§7", "§6"}; //Weird color thingies & next-back selections
+        String[] MineCraftLanguageFilter = {"§a","§b","§c","§d","§e", "§f", "§k","§l", "§m","§n", "§o","§r", "§0","§1", "§2", "§3", "§4", "§5", "§6", "§7", "§8", "§9"}; //Weird color thingies & next-back selections
         for(String f : MineCraftLanguageFilter)
             message = message.replaceAll(f, "");
         if(!message.isEmpty())

@@ -1,6 +1,6 @@
 main: io.github.thedoctorone.Main
 name: DiscordConnectsMinecraft
-version: 0.5
+version: 0.5.1
 commands:
   discord:
     description: Commands of Minecraft Connects Discord
