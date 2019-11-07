@@ -14,6 +14,8 @@ import net.dv8tion.jda.api.hooks.ListenerAdapter;
 import org.bukkit.Server;
 import org.bukkit.command.CommandException;
 import org.bukkit.command.RemoteConsoleCommandSender;
+
+import java.util.ArrayList;
 import java.util.logging.Logger;
 
 public class DiscordCommunication extends ListenerAdapter {
@@ -33,11 +35,14 @@ public class DiscordCommunication extends ListenerAdapter {
     private String TOKEN;
     private String permId;
 
-    DiscordCommunication (Main main, ChatCommands chatCommands, SyncFileOperation sfo) {
+    DiscordCommunication (Main main, SyncFileOperation sfo) {
         this.main = main;
-        this.chatCommands = chatCommands;
         this.sfo = sfo;
         dcs = new DiscordCommandSender(this, this.main);
+    }
+
+    public void setChatCommands(ChatCommands chatCommands) {
+        this.chatCommands = chatCommands;
     }
 
     public void executeBot (Server server, Logger lg, String TOKEN, String channelId, String permId, String serverStartMessage) throws LoginException {
@@ -83,12 +88,26 @@ public class DiscordCommunication extends ListenerAdapter {
                             "/discord : Commands\n" +
                             "/discord fast : Changes everything according to config file except Discord Bot Token\n" +
                             "/discord full : Changes everything according to config file\n" +
-                            "/discord sync : Sends the current synced list```");
+                            "/discord sync : Sends the current synced list\n" +
+                            "/discord sync remove : Remove the Sync```");
                     return;
                 }
                 server.dispatchCommand(dcs,event.getMessage().getContentRaw().replace("!exec "," ").trim());
             } // END IF FOR ADMINS
-            else if(event.getMessage().getContentRaw().trim().equals("!verify")) {
+            if(event.getMessage().getContentRaw().trim().startsWith("!verify ")) { //Handling the Verify Request
+                for(ArrayList<String> args : chatCommands.getCurrentSyncingMemberList()) {
+                    String UUID = args.get(0);
+                    String rnd = args.get(1);
+                    if(event.getMessage().getContentRaw().replace("!verify ","").trim().equals(rnd)){
+                        ArrayList<ArrayList<String>> arr = new ArrayList<>();
+                        arr.add(args);
+                        chatCommands.removeFromRequestList(arr); //Removing the request from queue
+                        String toAdd = UUID + ":" + event.getAuthor().getId();
+                        ArrayList<String> temp = chatCommands.getSyncedPeopleList();
+                        temp.add(toAdd);
+                        chatCommands.setSyncedPeopleList(temp);
+                    }
+                }
 
             } else if(event.getChannel().getId().equals(channelId) && !event.getAuthor().isBot()) {
                 server.broadcastMessage("[Discord] " + event.getAuthor().getName() + " : " + event.getMessage().getContentRaw()); //Mirroring Discord Chat to In-Game Chat

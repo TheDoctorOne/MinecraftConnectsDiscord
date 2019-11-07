@@ -36,7 +36,8 @@ public class Main extends JavaPlugin implements Listener {
         try {
             ConfigThingies();
             sfo = new SyncFileOperation();
-            getCommand("discord").setExecutor(chatCommands = new ChatCommands(this, dc = new DiscordCommunication(this, chatCommands, sfo))); //Adding discord command
+            getCommand("discord").setExecutor(chatCommands = new ChatCommands(this, dc = new DiscordCommunication(this, sfo), sfo)); //Adding discord command
+            dc.setChatCommands(chatCommands);
             chatCommands.setSyncedPeopleList(sfo.readSyncFile()); //Reading the Synced People
         } catch (IOException e) {
             getLogger().warning("CAN'T INTERACT WITH 'discord/' PATH!");
@@ -181,5 +182,13 @@ public class Main extends JavaPlugin implements Listener {
 
     public String getDiscordPerm () {
         return discordPerm;
+    }
+
+    public ChatCommands getChatCommands() {
+        return chatCommands;
+    }
+
+    public SyncFileOperation getSfo() {
+        return sfo;
     }
 }

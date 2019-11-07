@@ -45,10 +45,15 @@ public class ChatCommands implements CommandExecutor {
 
     public void setSyncedPeopleList(ArrayList<String> syncedPeopleList) {
         SyncedPeopleList = syncedPeopleList;
+        sfo.writeSyncFile(SyncedPeopleList);
     }
 
     public ArrayList<ArrayList<String>> getCurrentSyncingMemberList() {
         return CurrentSyncingMemberList;
+    }
+
+    public void removeFromRequestList(ArrayList<ArrayList<String>> toRemove){
+        CurrentSyncingMemberList.removeAll(toRemove);
     }
 
     @Override
