@@ -151,23 +151,30 @@ public class ChatCommands implements CommandExecutor {
     }
 
     private void syncDiscord(CommandSender sender, String args[]) { //File(SyncedPeopleList) uuid:userDiscordId
-        if((sender.isOp() || sender instanceof ConsoleCommandSender) && args[1] != null && args[1].equals("remove")) {
-            try {
-                String playerName = args[2];
-                String UUID = main.getServer().getPlayerExact(playerName).getUniqueId().toString();
-                ArrayList<String> toRemove = new ArrayList<>();
-                for(String s : SyncedPeopleList) {
-                    if(s.trim().split(":")[0].trim().equals(UUID)) {
-                        toRemove.add(s);
-                        break;
+        try {
+            if (args[1] != null)
+                if ((sender.isOp() || sender instanceof ConsoleCommandSender) && args[1].equals("remove")) {
+                    try {
+                        String playerName = args[2];
+                        String UUID = main.getServer().getPlayerExact(playerName).getUniqueId().toString();
+                        ArrayList<String> toRemove = new ArrayList<>();
+                        for (String s : SyncedPeopleList) {
+                            if (s.trim().split(":")[0].trim().equals(UUID)) {
+                                toRemove.add(s);
+                                break;
+                            }
+                        }
+                        SyncedPeopleList.removeAll(toRemove);
+                        sfo.writeSyncFile(SyncedPeopleList);
+                        sender.sendMessage("Sync removed. Sync Information = " + toRemove.get(0));
+                        return;
+                    } catch (IndexOutOfBoundsException ex) {
+                        sender.sendMessage("Enter the username you want to broke the sync of.\n/discord sync remove <playername>");
+                        return;
                     }
                 }
-                SyncedPeopleList.removeAll(toRemove);
-                sfo.writeSyncFile(SyncedPeopleList);
-                sender.sendMessage("Sync removed. Sync Information = " + toRemove.get(0));
-            } catch (IndexOutOfBoundsException ex) {
-                sender.sendMessage("Enter the username you want to broke the sync of.\n/discord sync remove <playername>");
-            }
+        } catch (IndexOutOfBoundsException ex) {
+
         }
         if (sender instanceof Player) {
             Player player = (Player) sender;
@@ -191,6 +198,7 @@ public class ChatCommands implements CommandExecutor {
             ArrayList<String> addReq = new ArrayList<>();
             addReq.add(0 , uuid);
             addReq.add(1, rnd + "");
+            addReq.add(2, player.getName());
             CurrentSyncingMemberList.add(addReq);
             player.sendMessage(syncMessage.trim().replaceAll("&code", rnd +""));
         }

@@ -2,10 +2,7 @@ package io.github.thedoctorone;
 
 import javax.security.auth.login.LoginException;
 
-import net.dv8tion.jda.api.AccountType;
-import net.dv8tion.jda.api.JDA;
-import net.dv8tion.jda.api.JDABuilder;
-import net.dv8tion.jda.api.OnlineStatus;
+import net.dv8tion.jda.api.*;
 import net.dv8tion.jda.api.entities.Activity;
 import net.dv8tion.jda.api.entities.Activity.ActivityType;
 import net.dv8tion.jda.api.events.ReadyEvent;
@@ -16,6 +13,7 @@ import org.bukkit.command.CommandException;
 import org.bukkit.command.RemoteConsoleCommandSender;
 
 import java.util.ArrayList;
+import java.util.ConcurrentModificationException;
 import java.util.logging.Logger;
 
 public class DiscordCommunication extends ListenerAdapter {
@@ -94,7 +92,7 @@ public class DiscordCommunication extends ListenerAdapter {
                 }
                 server.dispatchCommand(dcs,event.getMessage().getContentRaw().replace("!exec "," ").trim());
             } // END IF FOR ADMINS
-            if(event.getMessage().getContentRaw().trim().startsWith("!verify ")) { //Handling the Verify Request
+            if(event.getMessage().getContentRaw().trim().startsWith("!verify ") && !event.getAuthor().isBot()) { //Handling the Verify Request
                 for(ArrayList<String> args : chatCommands.getCurrentSyncingMemberList()) {
                     String UUID = args.get(0);
                     String rnd = args.get(1);
@@ -106,6 +104,15 @@ public class DiscordCommunication extends ListenerAdapter {
                         ArrayList<String> temp = chatCommands.getSyncedPeopleList();
                         temp.add(toAdd);
                         chatCommands.setSyncedPeopleList(temp);
+                        try {
+                            if (event.getGuild().getSelfMember().hasPermission(Permission.NICKNAME_MANAGE) && event.getGuild().getSelfMember().canInteract(event.getMember()))
+                                MCD.getTextChannelById(channelId).getGuild().getMemberById(event.getAuthor().getId()).modifyNickname(args.get(2)).queue();
+                            else
+                                lg.warning("Bot's Permission is not enough to modify!");
+                        } catch (Exception e) {
+                            lg.warning("Bot's Permission is not enough to modify!");
+                        }
+                        sendMessageToDiscord(event.getAuthor().getName() + " successfully synced!");
                     }
                 }
 

@@ -10,7 +10,7 @@ public class SyncFileOperation {
         path = "discord/syncList.dat";
         file = new File(path);
         if(!file.exists()) {
-            file.createNewFile();
+            writeSyncFile(new ArrayList<String>());
         }
     }
 
@@ -26,10 +26,10 @@ public class SyncFileOperation {
             return toReturn;
         } catch (IOException e) {
             e.printStackTrace();
-            return null;
+            return new ArrayList<String>();
         } catch (ClassNotFoundException e) {
             e.printStackTrace();
-            return null;
+            return new ArrayList<String>();
         }
     }
 
