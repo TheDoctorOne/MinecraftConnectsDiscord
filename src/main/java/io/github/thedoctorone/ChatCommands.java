@@ -8,23 +8,43 @@ import org.bukkit.entity.Player;
 
 import javax.security.auth.login.LoginException;
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Random;
 
-public class CommandReload implements CommandExecutor {
+public class ChatCommands implements CommandExecutor {
+    private ArrayList<ArrayList<String>> CurrentSyncingMemberList; //Arg.get(0) = uuid, Arg.get(1) = randomInt
+    private ArrayList<String> SyncedPeopleList;
     private DiscordCommunication dc;
     private Main main;
     private String fast = "fast";
     private String full = "full";
+    private String sync = "sync";
+    private String syncMessage = "Enter the number to discord chat. Example:\n!verify yourcode\nSync Code : &code";
     private String helpMessage = "\n**************************************************************\n" +
             "Minecraft Connects Discord by Mahmut H. Kocas\n" +
             "https://www.youtube.com/mahmutkocas\n" +
             "/discord : Commands\n" +
             "/discord fast : Changes everything according to config file except Discord Bot Token\n" +
             "/discord full : Changes everything according to config file\n" +
+            "/discord sync : Sync your minecraft account to your discord account!\n" +
             "**************************************************************";
 
-    CommandReload (Main main, DiscordCommunication dc) {
+    ChatCommands(Main main, DiscordCommunication dc) {
         this.dc = dc;
         this.main = main;
+        CurrentSyncingMemberList = new ArrayList<>();
+    }
+
+    public ArrayList<String> getSyncedPeopleList(){
+        return SyncedPeopleList;
+    }
+
+    public void setSyncedPeopleList(ArrayList<String> syncedPeopleList) {
+        SyncedPeopleList = syncedPeopleList;
+    }
+
+    public ArrayList<ArrayList<String>> getCurrentSyncingMemberList() {
+        return CurrentSyncingMemberList;
     }
 
     @Override
@@ -33,6 +53,7 @@ public class CommandReload implements CommandExecutor {
         * Args[0] = null -> Help
         * Args[0] -> Fast Reload - Only Reloads the messages
         * Args[0] -> Full Reload - Reloads whole bot
+        * Args[0] -> sync - Sends random 4 digit integer for verifying
         * */
         try {
              if(args.length == 0) { //Empty - Sends help
@@ -44,7 +65,9 @@ public class CommandReload implements CommandExecutor {
             } else if(args[0].equals(fast)) { //Fast
                  fastReload(sender);
                 return true;
-            } else {
+            } else if(args[0].equals(sync)) { //Sync
+                 syncDiscord(sender);
+             } else {
                  sender.sendMessage("Wrong usage.");
              }
         } catch (IOException | LoginException e) {
@@ -115,6 +138,34 @@ public class CommandReload implements CommandExecutor {
             }
         } else if (sender instanceof ConsoleCommandSender) { //Console
             sender.sendMessage(helpMessage);
+        }
+    }
+
+    private void syncDiscord(CommandSender sender) { //File(SyncedPeopleList) uuid:userDiscordId
+        if (sender instanceof Player) {
+            Player player = (Player) sender;
+            String uuid  = player.getUniqueId().toString().trim();
+            for(String s : SyncedPeopleList) { // Already Synced
+                if(s.split(":")[0].trim().equals(uuid)) {
+                    player.sendMessage("You already synced your account!");
+                    return;
+                }
+            } //END FOR - ALREADY SYNC
+            for(ArrayList<String> arg : CurrentSyncingMemberList) { // 0 = uuid - 1 = random | Already asked for a code
+                if(arg.get(0).trim().equals(uuid)) {
+                    player.sendMessage("Sync Code : " + arg.get(1));
+                    return;
+                }
+            } //END FOR - ALREADY ASKED FOR CODE
+
+            //First Ask for Sync
+            Random rndGen = new Random();
+            int rnd = rndGen.nextInt() % 10000;
+            ArrayList<String> addReq = new ArrayList<>();
+            addReq.add(0 , uuid);
+            addReq.add(1, rnd + "");
+            CurrentSyncingMemberList.add(addReq);
+            player.sendMessage(syncMessage.trim().replaceAll("&code", rnd +""));
         }
     }
 }

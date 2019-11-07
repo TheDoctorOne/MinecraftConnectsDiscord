@@ -14,7 +14,7 @@ import java.io.*;
 
 public class Main extends JavaPlugin implements Listener {
     private DiscordCommunication dc;
-    private CommandReload commandReload;
+    private ChatCommands chatCommands;
     private String VERSION = "0.5";
     private String playerJoin = "&p just joined to server!";
     private String playerLeft = "&p just leaved the server!";
@@ -34,7 +34,7 @@ public class Main extends JavaPlugin implements Listener {
         getLogger().info("Hello, Minecraft Connects to Discord is here! by Mahmut H. Kocas");
         try {
             ConfigThingies();
-            getCommand("discord").setExecutor(commandReload = new CommandReload(this, dc = new DiscordCommunication(this))); //Adding discord command
+            getCommand("discord").setExecutor(chatCommands = new ChatCommands(this, dc = new DiscordCommunication(this))); //Adding discord command
         } catch (IOException e) {
             getLogger().warning("CAN'T INTERACT WITH DISCORD'S CONFIG FILE!");
         }

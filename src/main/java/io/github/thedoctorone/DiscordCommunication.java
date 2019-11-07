@@ -8,16 +8,12 @@ import net.dv8tion.jda.api.JDABuilder;
 import net.dv8tion.jda.api.OnlineStatus;
 import net.dv8tion.jda.api.entities.Activity;
 import net.dv8tion.jda.api.entities.Activity.ActivityType;
-import net.dv8tion.jda.api.entities.Role;
 import net.dv8tion.jda.api.events.ReadyEvent;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
 import org.bukkit.Server;
 import org.bukkit.command.CommandException;
 import org.bukkit.command.RemoteConsoleCommandSender;
-
-import java.util.logging.Handler;
-import java.util.logging.LogRecord;
 import java.util.logging.Logger;
 
 public class DiscordCommunication extends ListenerAdapter {
@@ -81,6 +77,9 @@ public class DiscordCommunication extends ListenerAdapter {
                     server.dispatchCommand(dcs,event.getMessage().getContentRaw().replace("!exec "," ").trim());
             } else if(event.getChannel().getId().equals(channelId) && !event.getAuthor().isBot()) {
                 server.broadcastMessage("[Discord] " + event.getAuthor().getName() + " : " + event.getMessage().getContentRaw()); //Mirroring Discord Chat to In-Game Chat
+            }
+            if(event.getMessage().getContentRaw().trim().contains("!verify")) {
+
             }
         } catch (CommandException ex) {
             server.dispatchCommand(dcd, event.getMessage().getContentRaw().replace("!exec "," ").trim());
