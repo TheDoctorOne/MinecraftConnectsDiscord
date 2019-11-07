@@ -16,6 +16,7 @@ public class ChatCommands implements CommandExecutor {
     private ArrayList<String> SyncedPeopleList;
     private DiscordCommunication dc;
     private Main main;
+    private SyncFileOperation sfo;
     private String fast = "fast";
     private String full = "full";
     private String sync = "sync";
@@ -27,17 +28,20 @@ public class ChatCommands implements CommandExecutor {
             "/discord fast : Changes everything according to config file except Discord Bot Token\n" +
             "/discord full : Changes everything according to config file\n" +
             "/discord sync : Sync your minecraft account to your discord account!\n" +
+            "/discord sync remove : Remove the Sync\n" +
             "**************************************************************";
 
-    ChatCommands(Main main, DiscordCommunication dc) {
+    ChatCommands(Main main, DiscordCommunication dc, SyncFileOperation sfo) {
         this.dc = dc;
         this.main = main;
+        this.sfo = sfo;
         CurrentSyncingMemberList = new ArrayList<>();
     }
 
     public ArrayList<String> getSyncedPeopleList(){
         return SyncedPeopleList;
     }
+
 
     public void setSyncedPeopleList(ArrayList<String> syncedPeopleList) {
         SyncedPeopleList = syncedPeopleList;
@@ -66,7 +70,7 @@ public class ChatCommands implements CommandExecutor {
                  fastReload(sender);
                 return true;
             } else if(args[0].equals(sync)) { //Sync
-                 syncDiscord(sender);
+                 syncDiscord(sender, args);
              } else {
                  sender.sendMessage("Wrong usage.");
              }
@@ -141,7 +145,25 @@ public class ChatCommands implements CommandExecutor {
         }
     }
 
-    private void syncDiscord(CommandSender sender) { //File(SyncedPeopleList) uuid:userDiscordId
+    private void syncDiscord(CommandSender sender, String args[]) { //File(SyncedPeopleList) uuid:userDiscordId
+        if((sender.isOp() || sender instanceof ConsoleCommandSender) && args[1] != null && args[1].equals("remove")) {
+            try {
+                String playerName = args[2];
+                String UUID = main.getServer().getPlayerExact(playerName).getUniqueId().toString();
+                ArrayList<String> toRemove = new ArrayList<>();
+                for(String s : SyncedPeopleList) {
+                    if(s.trim().split(":")[0].trim().equals(UUID)) {
+                        toRemove.add(s);
+                        break;
+                    }
+                }
+                SyncedPeopleList.removeAll(toRemove);
+                sfo.writeSyncFile(SyncedPeopleList);
+                sender.sendMessage("Sync removed. Sync Information = " + toRemove.get(0));
+            } catch (IndexOutOfBoundsException ex) {
+                sender.sendMessage("Enter the username you want to broke the sync of.\n/discord sync remove <playername>");
+            }
+        }
         if (sender instanceof Player) {
             Player player = (Player) sender;
             String uuid  = player.getUniqueId().toString().trim();

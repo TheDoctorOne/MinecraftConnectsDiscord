@@ -15,6 +15,7 @@ import java.io.*;
 public class Main extends JavaPlugin implements Listener {
     private DiscordCommunication dc;
     private ChatCommands chatCommands;
+    private SyncFileOperation sfo;
     private String VERSION = "0.5";
     private String playerJoin = "&p just joined to server!";
     private String playerLeft = "&p just leaved the server!";
@@ -24,19 +25,21 @@ public class Main extends JavaPlugin implements Listener {
     private String discordInviteLink = "INVITE LINK OF YOUR DISCORD";
     private String discordPerm = "ENTER THE ADMIN DISCORD ROLE";
     private String TOKEN = "ENTER YOUR TOKEN HERE";
-    String boldStart = "**";
-    String squareParOpen = "[";
-    String squareParClose = "]";
-    String boldEnd = "**";
+    private String boldStart = "**";
+    private String squareParOpen = "[";
+    private String squareParClose = "]";
+    private String boldEnd = "**";
 
     @Override
     public void onEnable() {
         getLogger().info("Hello, Minecraft Connects to Discord is here! by Mahmut H. Kocas");
         try {
             ConfigThingies();
-            getCommand("discord").setExecutor(chatCommands = new ChatCommands(this, dc = new DiscordCommunication(this))); //Adding discord command
+            sfo = new SyncFileOperation();
+            getCommand("discord").setExecutor(chatCommands = new ChatCommands(this, dc = new DiscordCommunication(this, chatCommands, sfo))); //Adding discord command
+            chatCommands.setSyncedPeopleList(sfo.readSyncFile()); //Reading the Synced People
         } catch (IOException e) {
-            getLogger().warning("CAN'T INTERACT WITH DISCORD'S CONFIG FILE!");
+            getLogger().warning("CAN'T INTERACT WITH 'discord/' PATH!");
         }
         if(!TOKEN.equals("ENTER YOUR TOKEN HERE"))
             try {

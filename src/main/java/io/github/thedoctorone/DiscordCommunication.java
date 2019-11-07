@@ -19,6 +19,8 @@ import java.util.logging.Logger;
 public class DiscordCommunication extends ListenerAdapter {
     static JDA MCD;
     private Main main;
+    private ChatCommands chatCommands;
+    private SyncFileOperation sfo;
     private DiscordCommandSender dcs;
     private RemoteConsoleCommandSender dcd;
     private boolean firstConnection = true;
@@ -31,8 +33,10 @@ public class DiscordCommunication extends ListenerAdapter {
     private String TOKEN;
     private String permId;
 
-    DiscordCommunication (Main main) {
+    DiscordCommunication (Main main, ChatCommands chatCommands, SyncFileOperation sfo) {
         this.main = main;
+        this.chatCommands = chatCommands;
+        this.sfo = sfo;
         dcs = new DiscordCommandSender(this, this.main);
     }
 
@@ -43,13 +47,13 @@ public class DiscordCommunication extends ListenerAdapter {
         this.lg = lg;
         this.channelId = channelId;
         this.permId = permId;
-        runBot(TOKEN);
+        runBot(this.TOKEN);
     }
 
     public void reloadBot(String TOKEN) throws LoginException {
         MCD.shutdownNow();
         this.TOKEN = TOKEN;
-        runBot(TOKEN);
+        runBot(this.TOKEN);
     }
 
     public void runBot(String TOKEN) throws LoginException {
@@ -62,25 +66,35 @@ public class DiscordCommunication extends ListenerAdapter {
     public void onMessageReceived(MessageReceivedEvent event) { //When message comes from discord
         try {
             if(!permId.equals("ENTER THE ADMIN DISCORD ROLE") && event.getChannel().getId().equals(channelId) && event.getMessage().getContentRaw().trim().startsWith("!exec ") && event.getAuthor().getJDA().getRoleById(permId) != null) {
-                    if(event.getMessage().getContentRaw().contains("discord full"))
-                        sendByDiscordFullReload = true;
-                    else if(event.getMessage().getContentRaw().contains("discord") && !event.getMessage().getContentRaw().contains("discord fast")) {
-                        lg.info("true");
-                        sendMessageToDiscord("```css\n" +
-                                "# [Minecraft Connects Discord by Mahmut H. Kocas]\n" +
-                                "# [Youtube](https://www.youtube.com/mahmutkocas)\n" +
-                                "/discord : Commands\n" +
-                                "/discord fast : Changes everything according to config file except Discord Bot Token\n" +
-                                "/discord full : Changes everything according to config file```");
-                        return;
+
+                if(event.getMessage().getContentRaw().contains("discord full"))
+                    sendByDiscordFullReload = true;
+                else if (event.getMessage().getContentRaw().contains ("discord sync")) {
+                    String toSend = "";
+                    for(String s : chatCommands.getSyncedPeopleList()) {
+                        toSend += s;
                     }
-                    server.dispatchCommand(dcs,event.getMessage().getContentRaw().replace("!exec "," ").trim());
+                    event.getAuthor().openPrivateChannel().complete().sendMessage("```css\nUUID:DiscordID\n" + toSend + "\n```").queue();
+                    return;
+                } else if(event.getMessage().getContentRaw().equals("discord")) {
+                    sendMessageToDiscord("```css\n" +
+                            "# [Minecraft Connects Discord by Mahmut H. Kocas]\n" +
+                            "# [Youtube](https://www.youtube.com/mahmutkocas)\n" +
+                            "/discord : Commands\n" +
+                            "/discord fast : Changes everything according to config file except Discord Bot Token\n" +
+                            "/discord full : Changes everything according to config file\n" +
+                            "/discord sync : Sends the current synced list```");
+                    return;
+                }
+                server.dispatchCommand(dcs,event.getMessage().getContentRaw().replace("!exec "," ").trim());
+            } // END IF FOR ADMINS
+            else if(event.getMessage().getContentRaw().trim().equals("!verify")) {
+
             } else if(event.getChannel().getId().equals(channelId) && !event.getAuthor().isBot()) {
                 server.broadcastMessage("[Discord] " + event.getAuthor().getName() + " : " + event.getMessage().getContentRaw()); //Mirroring Discord Chat to In-Game Chat
             }
-            if(event.getMessage().getContentRaw().trim().contains("!verify")) {
 
-            }
+
         } catch (CommandException ex) {
             server.dispatchCommand(dcd, event.getMessage().getContentRaw().replace("!exec "," ").trim());
             sendMessageToDiscord("Command run, but output is out of reach.");
