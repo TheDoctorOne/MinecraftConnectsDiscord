@@ -16,7 +16,7 @@ public class Main extends JavaPlugin implements Listener {
     private DiscordCommunication dc;
     private ChatCommands chatCommands;
     private SyncFileOperation sfo;
-    private String VERSION = "0.5";
+    private String VERSION = "0.7";
     private String playerJoin = "&p just joined to server!";
     private String playerLeft = "&p just leaved the server!";
     private String ServerStart = "Server Started!";
@@ -25,10 +25,12 @@ public class Main extends JavaPlugin implements Listener {
     private String discordInviteLink = "INVITE LINK OF YOUR DISCORD";
     private String discordPerm = "ENTER THE ADMIN DISCORD ROLE";
     private String TOKEN = "ENTER YOUR TOKEN HERE";
+    private String syncBan = "true";
     private String boldStart = "**";
     private String squareParOpen = "[";
     private String squareParClose = "]";
     private String boldEnd = "**";
+    public static boolean DONT_BAN = false;
 
     @Override
     public void onEnable() {
@@ -75,7 +77,20 @@ public class Main extends JavaPlugin implements Listener {
     @EventHandler
     public void playerLeftEvent(PlayerQuitEvent event) {
         String player = event.getPlayer().getDisplayName();
-        dc.sendMessageToDiscord(boldStart + playerLeft.replace("&p", player) + boldEnd);
+        if(event.getPlayer().isBanned() && !DONT_BAN) {
+            DONT_BAN = true;
+            for(String args : chatCommands.getSyncedPeopleList()) {
+                String UUID = args.split(":")[0].trim();
+                String dcID = args.split(":")[1].trim();
+                if(event.getPlayer().getUniqueId().toString().trim().equals(UUID)) {
+                    DiscordCommunication.MCD.getTextChannelById(channelID).getGuild().ban(dcID, 0).queue();
+                    dc.sendMessageToDiscord(player + " is banned. And his discord account named : " + DiscordCommunication.MCD.getUserById(dcID).getName() + " also banned from discord server");
+                }
+            }
+            DONT_BAN = false;
+        } else {
+            dc.sendMessageToDiscord(boldStart + playerLeft.replace("&p", player) + boldEnd);
+        }
     }
 
     @EventHandler
@@ -124,12 +139,22 @@ public class Main extends JavaPlugin implements Listener {
             }
             if(temp.startsWith("Discord Invite Link=")) {
                 if(!temp.replaceFirst("Discord Invite Link="," ").trim().equals(VERSION)) {
-                    discordInviteLink = temp.replaceFirst("Discord Invite Link="," ").trim();;
+                    discordInviteLink = temp.replaceFirst("Discord Invite Link="," ").trim();
                 }
             }
             if(temp.startsWith("Discord Admin Role ID=")) {
                 if(!temp.replaceFirst("Discord Admin Role ID="," ").trim().equals(VERSION)) {
-                    discordPerm = temp.replaceFirst("Discord Admin Role ID="," ").trim();;
+                    discordPerm = temp.replaceFirst("Discord Admin Role ID="," ").trim();
+                }
+            }
+            if(temp.startsWith("Sync ban with Discord=")) {
+                if(!temp.replaceFirst("Sync ban with Discord="," ").trim().equals(VERSION)) {
+                    syncBan = temp.replaceFirst("Sync ban with Discord="," ").trim();
+                    if(syncBan.equals("false")) {
+                        DONT_BAN = true;
+                    } else if(syncBan.equals("true")) {
+                        DONT_BAN = false;
+                    }
                 }
             }
             if(temp.startsWith("CFG-VERSION=")) {
@@ -158,6 +183,7 @@ public class Main extends JavaPlugin implements Listener {
                 "Discord Admin Role ID= " + discordPerm + "\n" +
                 "# Invite Link of your Discord's\n" +
                 "Discord Invite Link= " + discordInviteLink +"\n" +
+                "Sync ban with Discord= " + syncBan + "\n" +
                 "Player Join Message= " + playerJoin +"\n" +
                 "Player Disconnect Message= "+ playerLeft + "\n" +
                 "Server Start Message= "+ ServerStart + "\n" +

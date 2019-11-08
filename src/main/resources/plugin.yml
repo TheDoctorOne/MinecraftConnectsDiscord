@@ -1,7 +1,12 @@
 main: io.github.thedoctorone.Main
 name: DiscordConnectsMinecraft
-version: 0.5.1
+version: 0.7
 commands:
   discord:
     description: Commands of Minecraft Connects Discord
-    usage: /discord
+    usage: |
+            /discord - Help
+            /discord fast - Fast Reload
+            /discord full - Full Reload
+            /discord sync - Discord and Minecraft account Sync
+            /discord sync remove - Sync Remove for Admins

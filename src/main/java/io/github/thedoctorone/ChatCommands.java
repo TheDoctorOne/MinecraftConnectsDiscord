@@ -20,6 +20,7 @@ public class ChatCommands implements CommandExecutor {
     private String fast = "fast";
     private String full = "full";
     private String sync = "sync";
+    private String allReadySyncMessage = "You already synced your account!";
     private String syncMessage = "Enter the number to discord chat. Example:\n!verify yourcode\nSync Code : &code";
     private String helpMessage = "\n**************************************************************\n" +
             "Minecraft Connects Discord by Mahmut H. Kocas\n" +
@@ -76,6 +77,7 @@ public class ChatCommands implements CommandExecutor {
                 return true;
             } else if(args[0].equals(sync)) { //Sync
                  syncDiscord(sender, args);
+                 return true;
              } else {
                  sender.sendMessage("Wrong usage.");
              }
@@ -174,14 +176,14 @@ public class ChatCommands implements CommandExecutor {
                     }
                 }
         } catch (IndexOutOfBoundsException ex) {
-
+            //Do none
         }
         if (sender instanceof Player) {
             Player player = (Player) sender;
             String uuid  = player.getUniqueId().toString().trim();
             for(String s : SyncedPeopleList) { // Already Synced
                 if(s.split(":")[0].trim().equals(uuid)) {
-                    player.sendMessage("You already synced your account!");
+                    player.sendMessage(allReadySyncMessage);
                     return;
                 }
             } //END FOR - ALREADY SYNC

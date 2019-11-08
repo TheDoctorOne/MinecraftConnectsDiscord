@@ -6,14 +6,15 @@ import net.dv8tion.jda.api.*;
 import net.dv8tion.jda.api.entities.Activity;
 import net.dv8tion.jda.api.entities.Activity.ActivityType;
 import net.dv8tion.jda.api.events.ReadyEvent;
+import net.dv8tion.jda.api.events.guild.GuildBanEvent;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
 import org.bukkit.Server;
 import org.bukkit.command.CommandException;
 import org.bukkit.command.RemoteConsoleCommandSender;
+import org.bukkit.entity.Player;
 
 import java.util.ArrayList;
-import java.util.ConcurrentModificationException;
 import java.util.logging.Logger;
 
 public class DiscordCommunication extends ListenerAdapter {
@@ -77,7 +78,7 @@ public class DiscordCommunication extends ListenerAdapter {
                     for(String s : chatCommands.getSyncedPeopleList()) {
                         toSend += s;
                     }
-                    event.getAuthor().openPrivateChannel().complete().sendMessage("```css\nUUID:DiscordID\n" + toSend + "\n```").queue();
+                    event.getAuthor().openPrivateChannel().complete().sendMessage("To be able to see who is the user of the UUID : `<@DiscordID>`\n```css\nUUID:DiscordID\n" + toSend + "\n```").queue();
                     return;
                 } else if(event.getMessage().getContentRaw().equals("discord")) {
                     sendMessageToDiscord("```css\n" +
@@ -123,7 +124,7 @@ public class DiscordCommunication extends ListenerAdapter {
 
         } catch (CommandException ex) {
             server.dispatchCommand(dcd, event.getMessage().getContentRaw().replace("!exec "," ").trim());
-            sendMessageToDiscord("Command run, but output is out of reach.");
+            sendMessageToDiscord("Command run, but output is out of reach. Check console.");
         } catch (NumberFormatException ex) {
             lg.warning("PERM ID IS NOT RIGHT!");
         }
@@ -138,6 +139,32 @@ public class DiscordCommunication extends ListenerAdapter {
         } else if (sendByDiscordFullReload) {
             sendByDiscordFullReload = false;
             sendMessageToDiscord("Full Reload Successful!");
+        }
+    }
+
+    @Override
+    public void onGuildBan(GuildBanEvent event){
+        if(!Main.DONT_BAN) {
+            Main.DONT_BAN = true;
+            String username = event.getUser().getName();
+            String userID = event.getUser().getId();
+            for (String arg : chatCommands.getSyncedPeopleList()) {
+                String[] args = arg.split(":");
+                String UUID = args[0];
+                String DiscordID = args[1];
+                if (DiscordID.trim().equals(userID)) {
+                    Player player = (Player) main.getServer().getOfflinePlayer(java.util.UUID.fromString(UUID));
+                    String playerName = player.getName();
+                    if (player.isBanned()) {
+                        sendMessageToDiscord(username + " is banned from the discord. His account at Minecraft named " + playerName + " is already been banned.");
+                    } else {
+                        server.dispatchCommand(dcd, "ban " + playerName);
+                        sendMessageToDiscord(username + " is banned from the discord. And the minecraft account of his called " + playerName + " also banned.");
+                    }
+                    return;
+                }
+            }
+            Main.DONT_BAN = false;
         }
     }
 
