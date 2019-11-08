@@ -34,6 +34,20 @@ In Ex. of usage
 *    !exec discord ---> Output will be shown.
 *    !exec discord full
 
+Syncing Minecraft Account with Discord Account
+
+Usage is as follows:
+User gets the **sync code** with
+***/discord sync***
+User verifies his sync code at discord with
+***!verify sync-code***
+**OPs** can remove sync with the following command
+***/discord sync remove <minecraft-username>***
+
+If user gets banned from Discord than he will also gets banned from Minecraft. And if user is online at the server and he gets banned from server while online, he will also gets banned from Discord. There is a configuration option at config file which allows you to toggle this.
+
+From discord if authorized people type "!exec discord sync" bot will send a private message which contains list of the synchronized players.
+
 To be able to use this in your Spigot Server,
 
 * You have to create a Discord Bot via https://discordapp.com/developers/ (its free)
