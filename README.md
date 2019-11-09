@@ -58,5 +58,5 @@ Open Discord's Developer Mode. Right click the text channel which you want to in
 
 Links
 > [SpigotMC Link](https://www.spigotmc.org/resources/minecraft-chat-connects-to-discord-chat.72427/ "Click to see Spigot Page!")<br>
-> [Turkish - Forum Gamer](https://forum.gamer.com.tr/konu/minecraft-connects-to-discord-bir-spigot-plugini.436127 "Forum Gamer'da ki Konumuz")<br>
+> [Turkish - Forum Gamer](https://forum.gamer.com.tr/indirmeler/minecraft-connects-to-discord.169/ "Forum Gamer'da ki Konumuz")<br>
 > [Turkish - MCTR](https://www.mc-tr.com/konu/minecraft-connects-to-discord-bir-spigot-plugini.69826/ "MC-TR Forumundaki Konumuz")
