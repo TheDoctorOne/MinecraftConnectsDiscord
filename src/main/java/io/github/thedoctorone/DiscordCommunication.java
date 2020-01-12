@@ -7,6 +7,7 @@ import net.dv8tion.jda.api.entities.Activity;
 import net.dv8tion.jda.api.entities.Activity.ActivityType;
 import net.dv8tion.jda.api.events.ReadyEvent;
 import net.dv8tion.jda.api.events.guild.GuildBanEvent;
+import net.dv8tion.jda.api.events.guild.member.GuildMemberJoinEvent;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
 import org.bukkit.Server;
@@ -94,29 +95,34 @@ public class DiscordCommunication extends ListenerAdapter {
                 server.dispatchCommand(dcs,event.getMessage().getContentRaw().replace("!exec "," ").trim());
             } // END IF FOR ADMINS
             if(event.getMessage().getContentRaw().trim().startsWith("!verify ") && !event.getAuthor().isBot()) { //Handling the Verify Request
-                for(ArrayList<String> args : chatCommands.getCurrentSyncingMemberList()) {
+                ArrayList<ArrayList<String>> syncList = chatCommands.getCurrentSyncingMemberList();
+                ArrayList<ArrayList<String>> arr = new ArrayList<>();
+                for(ArrayList<String> args : syncList) {
                     String UUID = args.get(0);
                     String rnd = args.get(1);
                     if(event.getMessage().getContentRaw().replace("!verify ","").trim().equals(rnd)){
-                        ArrayList<ArrayList<String>> arr = new ArrayList<>();
                         arr.add(args);
-                        chatCommands.removeFromRequestList(arr); //Removing the request from queue
                         String toAdd = UUID + ":" + event.getAuthor().getId();
                         ArrayList<String> temp = chatCommands.getSyncedPeopleList();
                         temp.add(toAdd);
                         chatCommands.setSyncedPeopleList(temp);
                         try {
-                            if (event.getGuild().getSelfMember().hasPermission(Permission.NICKNAME_MANAGE) && event.getGuild().getSelfMember().canInteract(event.getMember()))
+                            if (event.getGuild().getSelfMember().hasPermission(Permission.NICKNAME_MANAGE) && event.getGuild().getSelfMember().canInteract(event.getMember())) {
                                 MCD.getTextChannelById(channelId).getGuild().getMemberById(event.getAuthor().getId()).modifyNickname(args.get(2)).queue();
+                            }
                             else
                                 lg.warning("Bot's Permission is not enough to modify!");
+
+                            if(Main.syncRoleID_GRANTED) {
+                                event.getGuild().addRoleToMember(event.getMember(), event.getJDA().getRoleById(main.getSyncRoleID())).queue();
+                            }
                         } catch (Exception e) {
-                            lg.warning("Bot's Permission is not enough to modify!");
+                            lg.warning("Exception! Bot's Permission is not enough to modify!");
                         }
                         sendMessageToDiscord(event.getAuthor().getName() + " successfully synced!");
                     }
                 }
-
+                chatCommands.removeFromRequestList(arr); //Removing the request/s from queue
             } else if(event.getChannel().getId().equals(channelId) && !event.getAuthor().isBot()) {
                 server.broadcastMessage("[Discord] " + event.getAuthor().getName() + " : " + event.getMessage().getContentRaw()); //Mirroring Discord Chat to In-Game Chat
             }
@@ -165,6 +171,19 @@ public class DiscordCommunication extends ListenerAdapter {
                 }
             }
             Main.DONT_BAN = false;
+        }
+    }
+
+    @Override
+    public void onGuildMemberJoin(GuildMemberJoinEvent event) {
+        if(Main.syncRoleID_GRANTED) {
+            ArrayList<String> SyncedList = chatCommands.getSyncedPeopleList();
+            for(String user: SyncedList) {
+                String discordID = user.split(":")[1].trim();
+                if(event.getMember().getId().trim().equals(discordID)) {
+                    event.getGuild().addRoleToMember(event.getMember(), event.getJDA().getRoleById(main.getSyncRoleID())).queue();
+                }
+            }
         }
     }
 

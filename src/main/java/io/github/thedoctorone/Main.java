@@ -16,7 +16,7 @@ public class Main extends JavaPlugin implements Listener {
     private DiscordCommunication dc;
     private ChatCommands chatCommands;
     private SyncFileOperation sfo;
-    private String VERSION = "0.7";
+    private String VERSION = "0.85";
     private String playerJoin = "&p just joined to server!";
     private String playerLeft = "&p just leaved the server!";
     private String ServerStart = "Server Started!";
@@ -26,11 +26,13 @@ public class Main extends JavaPlugin implements Listener {
     private String discordPerm = "ENTER THE ADMIN DISCORD ROLE";
     private String TOKEN = "ENTER YOUR TOKEN HERE";
     private String syncBan = "true";
+    private String syncRoleID = "ENTER YOUR SYNC ROLE ID";
     private String boldStart = "**";
     private String squareParOpen = "[";
     private String squareParClose = "]";
-    private String boldEnd = "**";
+    private String boldEnd = "**"; //why the f* did i defined this again. wtf
     public static boolean DONT_BAN = false;
+    public static boolean syncRoleID_GRANTED = false;
 
     @Override
     public void onEnable() {
@@ -138,23 +140,29 @@ public class Main extends JavaPlugin implements Listener {
                 ServerStop = temp.replaceFirst("Server Stop Message="," ").trim();
             }
             if(temp.startsWith("Discord Invite Link=")) {
-                if(!temp.replaceFirst("Discord Invite Link="," ").trim().equals(VERSION)) {
+                if(!temp.replaceFirst("Discord Invite Link="," ").trim().equals(discordInviteLink)) {
                     discordInviteLink = temp.replaceFirst("Discord Invite Link="," ").trim();
                 }
             }
             if(temp.startsWith("Discord Admin Role ID=")) {
-                if(!temp.replaceFirst("Discord Admin Role ID="," ").trim().equals(VERSION)) {
+                if(!temp.replaceFirst("Discord Admin Role ID="," ").trim().equals(discordPerm)) {
                     discordPerm = temp.replaceFirst("Discord Admin Role ID="," ").trim();
                 }
             }
             if(temp.startsWith("Sync ban with Discord=")) {
-                if(!temp.replaceFirst("Sync ban with Discord="," ").trim().equals(VERSION)) {
+                if(!temp.replaceFirst("Sync ban with Discord="," ").trim().equals(syncBan)) {
                     syncBan = temp.replaceFirst("Sync ban with Discord="," ").trim();
                     if(syncBan.equals("false")) {
                         DONT_BAN = true;
                     } else if(syncBan.equals("true")) {
                         DONT_BAN = false;
                     }
+                }
+            }
+            if(temp.startsWith("Sync Role ID=")) {
+                if(!temp.replaceFirst("Sync Role ID=", " ").trim().equals(syncRoleID)) {
+                    syncRoleID = temp.replaceFirst("Sync Role ID=", " ").trim();
+                    syncRoleID_GRANTED = true;
                 }
             }
             if(temp.startsWith("CFG-VERSION=")) {
@@ -185,6 +193,7 @@ public class Main extends JavaPlugin implements Listener {
                 "Discord Invite Link= " + discordInviteLink +"\n" +
                 "Sync ban with Discord= " + syncBan + "\n" +
                 "Player Join Message= " + playerJoin +"\n" +
+                "Sync Role ID= " + syncRoleID + "\n" + 
                 "Player Disconnect Message= "+ playerLeft + "\n" +
                 "Server Start Message= "+ ServerStart + "\n" +
                 "Server Stop Message= " + ServerStop + "\n" +
@@ -208,6 +217,10 @@ public class Main extends JavaPlugin implements Listener {
 
     public String getDiscordPerm () {
         return discordPerm;
+    }
+
+    public String getSyncRoleID() {
+        return syncRoleID;
     }
 
     public ChatCommands getChatCommands() {
